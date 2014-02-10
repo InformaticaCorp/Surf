@@ -1,0 +1,11 @@
+# AWS account information
+aws-access-key-id: <your-access-id>
+aws-secret-key: <your-secret-key>
+# Kinesis Stream Name
+aws-kinesis-stream-name: <your-stream-name>
+# DummySource sends one message containing the current timestamp every second
+# You can use any class that implements VDSSource
+vds-source-class: com.informatica.surf.sources.dummy.DummySource
+# The next line sets the number of threads used by the
+# Kinesis Async API
+kinesis-parallel-requests: 10

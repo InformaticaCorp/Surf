@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.informatica.surf</groupId>
+        <artifactId>sources</artifactId>
+        <version>1.0</version>
+    </parent>
+  <groupId>com.informatica.messaging.binge.sources</groupId>
+  <artifactId>websocket</artifactId>
+  <name>Surf HTTP Source</name>
+  <url>http://www.informatica.com</url>
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  </properties>
+  <dependencies>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+        <groupId>io.netty</groupId>
+        <artifactId>netty-all</artifactId>
+        <version>4.0.13.Final</version>
+    </dependency>
+    <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-api</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>com.informatica.messaging.binge</groupId>
+        <artifactId>vdsapi</artifactId>
+    </dependency>
+  </dependencies>
+</project>

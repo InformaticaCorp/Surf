@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tns:vdsPlugin xmlns:tns="http://www.informatica.com/VdsPlugin" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.informatica.com/VdsPlugin ../../../${product-name}-assembly/config/vds_plugin.xsd ">
+  <tns:name>Flat File</tns:name>
+  <tns:version>2.0</tns:version>
+  <tns:type>SOURCE</tns:type>
+  <tns:id>0</tns:id>
+  <tns:configuration>
+    <tns:fields>
+      <tns:field>
+        <tns:name>tns:name</tns:name>
+        <tns:displayName>tns:displayName</tns:displayName>
+        <tns:type>String</tns:type>
+        <tns:mandatory>true</tns:mandatory>
+      </tns:field>
+    </tns:fields>
+  </tns:configuration>
+  <tns:runTime>
+    <tns:pluginJar>file-source-2.0.jar</tns:pluginJar>
+    <tns:pluginClass>com.informatica.binge.sources.file.BingeFileReaderDelegator</tns:pluginClass>
+  </tns:runTime>
+</tns:vdsPlugin>

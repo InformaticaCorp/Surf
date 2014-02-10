@@ -1,0 +1,19 @@
+*.class
+
+# Package Files #
+#*.jar
+*.war
+*.ear
+/target/
+
+/surf/target/
+/bingeapi/target/
+/vdsapi/target/
+/assembly/target/
+/common/target/
+
+binge.properties
+/sources/dummy/target/
+/targets/kinesis/target/
+/sources/file/target/
+/sources/http/target/

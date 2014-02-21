@@ -15,8 +15,9 @@
         <module>sources</module>
         <module>targets</module>
         <module>surf</module>
+        <module>sample</module>
         <module>assembly</module>
-    </modules>
+  </modules>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <netbeans.hint.license>apache20</netbeans.hint.license>

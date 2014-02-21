@@ -17,3 +17,4 @@ binge.properties
 /targets/kinesis/target/
 /sources/file/target/
 /sources/http/target/
+/sample/target/

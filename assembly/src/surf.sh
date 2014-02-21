@@ -118,6 +118,22 @@ stop-node)
 	fi
 	stop_daemon $node
 	;;
+dump-stream)
+	shift
+	node=$1
+	if [ -z "$node" ]
+	then
+	  echo "Usage: $0 dump-stream nodename" >&2
+	  exit
+        fi
+        conf="$BASEDIR/conf/$node.conf"
+        if [ ! -r "$conf" ]
+        then 
+            echo "Config file \"$conf\" for node \"$node\" not found or not readable" >&2
+            exit
+        fi
+	"$JAVA" -cp "$CLASSPATH" "-Dnodename=${node}-dumpstream" $JVMARGS com.informatica.surf.sample.DumpStream $conf
+	;;
 *)
 	echo "Usage: $0 {start-node|stop-node}" >&2
 esac

@@ -68,7 +68,7 @@ public class DumpStream {
         CredProvider credprovider = new CredProvider(creds);
         KinesisClientLibConfiguration config = new KinesisClientLibConfiguration(appName, streamname,  credprovider, workerId);
         
-        Worker worker = new Worker(new RecordProcessorFactory(), config);
+        Worker worker = new Worker(new RecordProcessorFactory(), config, new MetricsFactory());
         worker.run();
     }
     

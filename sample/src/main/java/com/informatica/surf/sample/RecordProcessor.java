@@ -25,6 +25,8 @@ import com.amazonaws.services.kinesis.clientlibrary.interfaces.IRecordProcessorC
 import com.amazonaws.services.kinesis.clientlibrary.types.ShutdownReason;
 import com.amazonaws.services.kinesis.model.Record;
 import java.util.List;
+
+import com.lmax.disruptor.RingBuffer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,8 +36,11 @@ import org.slf4j.LoggerFactory;
  */
 class RecordProcessor implements IRecordProcessor {
     private static final Logger _logger = LoggerFactory.getLogger(RecordProcessor.class);
+    private final RingBuffer<KinesisEvent> _buffer;
 
-    public RecordProcessor() {
+
+    public RecordProcessor(RingBuffer buf) {
+        _buffer = buf;
     }
 
     @Override
@@ -48,7 +53,10 @@ class RecordProcessor implements IRecordProcessor {
         _logger.info("Processing {} records", list.size());
         for(Record r: list){
             String data = new String(r.getData().array());
-            System.out.println(String.format("seqno %s: partkey %s: %s", r.getSequenceNumber(), r.getPartitionKey(), data));
+            long seq = _buffer.next();
+            KinesisEvent evt = _buffer.get(seq);
+            evt.setData(data);
+            _buffer.publish(seq);
         }
         try{
             irpc.checkpoint();

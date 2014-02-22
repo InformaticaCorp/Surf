@@ -18,17 +18,23 @@ package com.informatica.surf.sample;
 
 import com.amazonaws.services.kinesis.clientlibrary.interfaces.IRecordProcessor;
 import com.amazonaws.services.kinesis.clientlibrary.interfaces.IRecordProcessorFactory;
+import com.lmax.disruptor.RingBuffer;
 
 /**
  *
  * @author Informatica Corp
  */
 public class RecordProcessorFactory implements IRecordProcessorFactory{
+    private final RingBuffer<KinesisEvent> _buffer;
 
+    public RecordProcessorFactory(RingBuffer<KinesisEvent> buffer){
+
+        _buffer = buffer;
+    }
     
     @Override
     public IRecordProcessor createProcessor() {
-        return new RecordProcessor();
+        return new RecordProcessor(_buffer);
     }
     
 }

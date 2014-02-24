@@ -70,8 +70,8 @@ public class DumpStream {
                 System.out.println(String.format("Received : %s", kinesisEvent.getData()));
             }
         };
-        Executor executor = Executors.newSingleThreadExecutor();
-        Disruptor<KinesisEvent> disruptor = new Disruptor<>(KinesisEvent.EVENT_FACTORY, 100, executor);
+        Executor executor = Executors.newCachedThreadPool();
+        Disruptor<KinesisEvent> disruptor = new Disruptor<>(KinesisEvent.EVENT_FACTORY, 128, executor);
 
         disruptor.handleEventsWith(handler);
         RingBuffer<KinesisEvent> buffer = disruptor.start();

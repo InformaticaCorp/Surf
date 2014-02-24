@@ -18,6 +18,7 @@ public class KinesisEvent {
     }
 
     public static final EventFactory<KinesisEvent> EVENT_FACTORY = new EventFactory<KinesisEvent>(){
+        @Override
         public KinesisEvent newInstance(){
             return new KinesisEvent();
         }

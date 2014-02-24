@@ -16,23 +16,10 @@
 
 package com.informatica.surf.sample;
 
-import com.amazonaws.auth.AWSCredentials;
-import com.amazonaws.auth.AWSCredentialsProvider;
-import com.amazonaws.auth.BasicAWSCredentials;
-import com.amazonaws.services.kinesis.clientlibrary.lib.worker.KinesisClientLibConfiguration;
 import com.amazonaws.services.kinesis.clientlibrary.lib.worker.Worker;
 import com.lmax.disruptor.EventHandler;
-import com.lmax.disruptor.RingBuffer;
-import com.lmax.disruptor.SleepingWaitStrategy;
-import com.lmax.disruptor.dsl.Disruptor;
 
 import java.io.File;
-import java.io.FileReader;
-import java.net.InetAddress;
-import java.util.Properties;
-import java.util.UUID;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
 
 
 /**
@@ -70,42 +57,8 @@ public class DumpStream {
                 System.out.println(String.format("Received : %s", kinesisEvent.getData()));
             }
         };
-        Executor executor = Executors.newCachedThreadPool();
-        Disruptor<KinesisEvent> disruptor = new Disruptor<>(KinesisEvent.EVENT_FACTORY, 128, executor);
-
-        disruptor.handleEventsWith(handler);
-        RingBuffer<KinesisEvent> buffer = disruptor.start();
-
-        Properties props = new Properties();
-        props.load(new FileReader(f));
-        String appName = "DumpStream";
-        // Generate a unique worker ID
-        String workerId = InetAddress.getLocalHost().getCanonicalHostName() + ":" + UUID.randomUUID();
-        String accessid = props.getProperty("aws-access-key-id");
-        String secretkey = props.getProperty("aws-secret-key");
-        String streamname = props.getProperty("aws-kinesis-stream-name");
-        BasicAWSCredentials creds = new BasicAWSCredentials(accessid, secretkey);
-        CredProvider credprovider = new CredProvider(creds);
-        KinesisClientLibConfiguration config = new KinesisClientLibConfiguration(appName, streamname,  credprovider, workerId);
-        
-        Worker worker = new Worker(new RecordProcessorFactory(buffer), config, new MetricsFactory());
+        Worker worker = Util.createWorker(f, handler, "DumpStream");
         worker.run();
     }
     
-    static class CredProvider implements AWSCredentialsProvider{
-        AWSCredentials _creds;
-        public CredProvider(AWSCredentials creds){
-            _creds = creds;
-        }
-        @Override
-        public AWSCredentials getCredentials() {
-            return _creds;
-        }
-
-        @Override
-        public void refresh() {
-            // NOOP
-        }
-        
-    }
 }

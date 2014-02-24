@@ -134,6 +134,22 @@ dump-stream)
         fi
 	"$JAVA" -cp "$CLASSPATH" "-Dnodename=${node}-dumpstream" $JVMARGS com.informatica.surf.sample.DumpStream $conf
 	;;
+page-count)
+	shift
+	node=$1
+	if [ -z "$node" ]
+	then
+	  echo "Usage: $0 dump-stream nodename" >&2
+	  exit
+        fi
+        conf="$BASEDIR/conf/$node.conf"
+        if [ ! -r "$conf" ]
+        then 
+            echo "Config file \"$conf\" for node \"$node\" not found or not readable" >&2
+            exit
+        fi
+	"$JAVA" -cp "$CLASSPATH" "-Dnodename=${node}-pagecount" $JVMARGS com.informatica.surf.sample.PageCount $conf
+	;;
 *)
 	echo "Usage: $0 {start-node|stop-node}" >&2
 esac

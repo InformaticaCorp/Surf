@@ -16,15 +16,17 @@
 package com.informatica.surf;
 
 import com.informatica.surf.target.kinesis.KinesisTarget;
-import com.informatica.vds.api.VDSConfiguration;
-import com.informatica.vds.api.VDSEvent;
-import com.informatica.vds.api.VDSSource;
-import com.informatica.vds.api.VDSTarget;
+import com.informatica.vds.api.*;
+
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
+import java.util.StringTokenizer;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -63,7 +65,26 @@ public class Surf
         }
         Context ctx = new Context();
         ctx.setFromProperties(props);
-        Node node = new Node(src, tgt, ctx);
+        String tx = props.getProperty("surf-transforms");
+        List<VDSTransform> transforms = new ArrayList<>();
+        if(tx != null){
+            StringTokenizer tok = new StringTokenizer(tx, ",");
+            while(tok.hasMoreTokens()){
+                String className = tok.nextToken().trim();
+                try{
+                    Class clazz = Class.forName(className);
+                    Object o = clazz.newInstance();
+                    transforms.add((VDSTransform)o);
+                }
+                catch(ClassNotFoundException ex){
+                    _logger.warn("Could not load transform class: {}", className);
+                }
+                catch(ClassCastException ex){
+                    _logger.warn("Transform class {} does not implement VDSTarget interface", className);
+                }
+            }
+        }
+        Node node = new Node(src, tgt, transforms, ctx);
         node.open();
         node.run();
     }

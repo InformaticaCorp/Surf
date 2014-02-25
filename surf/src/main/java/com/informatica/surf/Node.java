@@ -20,18 +20,24 @@ import com.informatica.um.binge.api.impl.VDSEventListImpl;
 import com.informatica.um.binge.api.impl.VDSEventListPoolFactory;
 import com.informatica.um.binge.api.impl.VDSEventPoolFactory;
 import com.informatica.um.binge.api.impl.VDSMessageAckSource;
-import com.informatica.vds.api.VDSConfiguration;
-import com.informatica.vds.api.VDSSource;
-import com.informatica.vds.api.VDSTarget;
+import com.informatica.vds.api.*;
+import com.lmax.disruptor.EventHandler;
+import com.lmax.disruptor.RingBuffer;
+import com.lmax.disruptor.dsl.Disruptor;
 import org.apache.commons.pool.impl.GenericKeyedObjectPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Iterator;
+import java.util.List;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 /**
  *
  * @author jraj
  */
-public class Node implements Runnable {
+public class Node implements Runnable, EventHandler<SurfEvent> {
     
     private VDSSource _source;
     private VDSTarget _target;
@@ -40,12 +46,14 @@ public class Node implements Runnable {
     private volatile boolean _shutdown = false;
     private final VDSMessageAckSource _acksource;
     private final boolean _needsAck;
-    private final GenericKeyedObjectPool <Integer, VDSEventListImpl>_eventListPool; 
+    private final GenericKeyedObjectPool <Integer, VDSEventListImpl>_eventListPool;
+    private final List<VDSTransform> _transforms;
     
-    public Node(VDSSource source, VDSTarget target, VDSConfiguration ctx){
+    public Node(VDSSource source, VDSTarget target, List<VDSTransform> transforms, VDSConfiguration ctx){
         _logger.info("Creating node...");
         _source = source;
         _target = target;
+        _transforms = transforms;
         _context = ctx;
         if(source instanceof VDSMessageAckSource){
             _acksource = (VDSMessageAckSource)source;
@@ -72,6 +80,12 @@ public class Node implements Runnable {
     @Override
     public void run(){
         _logger.info("Node run starting...");
+        Executor executor = Executors.newCachedThreadPool();
+        Disruptor<SurfEvent> disruptor = new Disruptor<>(SurfEvent.EVENT_FACTORY, 128, executor);
+        disruptor.handleEventsWith(this);
+        RingBuffer<SurfEvent> buffer = disruptor.start();
+
+
         VDSEventListImpl events = null;
         while(!_shutdown){
             try{
@@ -83,19 +97,14 @@ public class Node implements Runnable {
                     // Need to actually ack the object after Kinesis consumes it: TODO
                     _acksource.updateInputObject(obj);
                 }
-                processEvents(events);
+                long seq = buffer.next();
+                SurfEvent event = buffer.get(seq);
+                event.setEventlist(events);
+                buffer.publish(seq);
             }
             catch(Exception ex){
                 _logger.error("Exception while reading data:", ex);
                 ex.printStackTrace();
-            }
-            finally{
-                try{
-                    _eventListPool.returnObject(0, events);
-                }
-                catch(Exception ex){
-                    _logger.error("Exception while returning objects to the pool", ex);
-                }
             }
         }
     }
@@ -103,45 +112,29 @@ public class Node implements Runnable {
     public void shutdown(){
         _shutdown = true;
     }
-    private void processEvents(VDSEventListImpl events){
-        for(VDSEventImpl evt: events.getEventsList()){
-            try{
-                _target.write(evt);
-            }
-            catch(Exception ex){
-                _logger.error("Exception while writing to target", ex);
-            }
-        }
-    }
-    /*
-    class WriteThread extends Thread{
-        private final VDSEventListImpl _events;
-        public WriteThread(VDSEventListImpl events){
-            _logger.info("Write thread created");
-            _events = events;
-        }
-        @Override
-        public void run(){
-            _logger.info("Write thread starting...");
-            while(!_shutdown){
-                List<VDSEventImpl> list = _events.getEventsList();
-                while(!list.isEmpty()){
-                    VDSEventImpl evt = list.remove(0);
-                        
-                    _logger.debug("WriteThread got an event, sendint to target");
-                    try{
-                        _target.write(evt);
-                        _eventPool.returnObject(0, evt);
-                    }
-                    catch(Exception ex){
-                        _logger.error("Exception while writing data:", ex);
-                    }
-                }
-                try{sleep(10);}catch(Exception ex){}
 
-            }
+    @Override
+    public void onEvent(SurfEvent surfEvent, long l, boolean b) throws Exception {
+        VDSEventListImpl srcEvents = surfEvent.getEventlist();
+        VDSEventListImpl txEvents = applyTransforms(srcEvents, _transforms.iterator());
+        for(VDSEventImpl evt: txEvents.getEventsList()){
+            _target.write(evt);
         }
+        _eventListPool.returnObject(0, txEvents);
     }
-    */
-    
+
+    private VDSEventListImpl applyTransforms(VDSEventListImpl srcEvents, Iterator<VDSTransform> transforms) throws Exception{
+        if(!transforms.hasNext()){
+            return srcEvents;
+        }
+        VDSTransform tx = transforms.next();
+        VDSEventListImpl outlist = _eventListPool.borrowObject(0);
+        for(VDSEventImpl evt: srcEvents.getEventsList()){
+            tx.apply(evt, outlist);
+        }
+        _eventListPool.returnObject(0, srcEvents);
+        return applyTransforms(outlist, transforms);
+
+    }
+
 }

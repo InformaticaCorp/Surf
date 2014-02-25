@@ -7,3 +7,4 @@ directory: .
 filename: out.log
 kinesis-parallel-requests: 10
 kinesis-partition-key: 2
+surf-transforms: com.informatica.surf.transforms.partitionkey.PartitionKeyTransform

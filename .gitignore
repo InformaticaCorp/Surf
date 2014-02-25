@@ -18,3 +18,6 @@ binge.properties
 /sources/file/target/
 /sources/http/target/
 /sample/target/
+.DS_Store
+*.iml
+.idea

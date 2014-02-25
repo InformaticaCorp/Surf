@@ -21,3 +21,4 @@ binge.properties
 .DS_Store
 *.iml
 .idea
+/transforms/partitionkey/target/

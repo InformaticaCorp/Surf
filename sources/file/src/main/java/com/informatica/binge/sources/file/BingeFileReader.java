@@ -154,7 +154,7 @@ public class BingeFileReader extends VDSMessageAckSource {
 
     @Override
     public void open(VDSConfiguration ctx) throws Exception {
-        int flightSize = ctx.getInt(SRC_FLIGHT_SIZE);
+        int flightSize = ctx.optInt(SRC_FLIGHT_SIZE, 1000);
         String path = new File(ctx.getString(SRC_CFG_DIRECTORY), ctx.getString(SRC_CFG_FILENAME)).getAbsolutePath();
 
         marshaller = SeparatorMarshaller.getSeparatorMarshaller(ctx);

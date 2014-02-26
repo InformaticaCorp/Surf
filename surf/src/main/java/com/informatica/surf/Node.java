@@ -39,9 +39,9 @@ import java.util.concurrent.Executors;
  */
 public class Node implements Runnable, EventHandler<SurfEvent> {
     
-    private VDSSource _source;
-    private VDSTarget _target;
-    private VDSConfiguration _context;
+    private final VDSSource _source;
+    private final VDSTarget _target;
+    private final VDSConfiguration _context;
     private static final Logger _logger = LoggerFactory.getLogger(Node.class);
     private volatile boolean _shutdown = false;
     private final VDSMessageAckSource _acksource;
@@ -75,6 +75,9 @@ public class Node implements Runnable, EventHandler<SurfEvent> {
         _logger.info("Opening source and target connections...");
         _source.open(_context);
         _target.open(_context);
+        for(VDSTransform tx: _transforms){
+            tx.open(_context);
+        }
     }
     
     @Override

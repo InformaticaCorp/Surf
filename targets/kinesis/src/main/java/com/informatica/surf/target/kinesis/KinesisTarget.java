@@ -25,6 +25,7 @@ import com.informatica.vds.api.VDSEvent;
 import com.informatica.vds.api.VDSTarget;
 import java.io.IOException;
 import java.util.Map;
+import java.util.Random;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -55,7 +56,7 @@ public class KinesisTarget implements VDSTarget{
     private final Callback _callback = new Callback();
     private ExecutorService _threadpool;
     private final ScheduledExecutorService _scheduler = Executors.newSingleThreadScheduledExecutor();
-    private String _partitionKey;
+    private final Random _random = new Random(System.currentTimeMillis());
     @Override
     public void open(VDSConfiguration ctx) throws Exception {
         String accessID = ctx.getString(ACCESS_KEY);
@@ -68,7 +69,6 @@ public class KinesisTarget implements VDSTarget{
         _client = new AmazonKinesisAsyncClient(creds, _threadpool);
         _scheduler.scheduleAtFixedRate(_callback, 10, 10, TimeUnit.SECONDS); // TODO: make this configurable?
         
-        _partitionKey = ctx.getString(PARTITION_KEY);
         _logger.info("Created connection to AWS Kinesis");
         _logger.info("Stream name: " + _streamName);
     }
@@ -81,10 +81,12 @@ public class KinesisTarget implements VDSTarget{
         req.setData(event.getBuffer());
         if(headers != null){
             if(headers.containsKey(PARTITION_KEY)){
+                _logger.debug("Using partition key from header");
                 req.setPartitionKey(headers.get(PARTITION_KEY));
             }
             else{
-                req.setPartitionKey(_partitionKey);
+                _logger.debug("Using random partition key");
+                req.setPartitionKey(String.valueOf(_random.nextLong()));
             }
             if(headers.containsKey(SEQUENCE_NUMBER)){
                 req.setSequenceNumberForOrdering(headers.get(SEQUENCE_NUMBER));

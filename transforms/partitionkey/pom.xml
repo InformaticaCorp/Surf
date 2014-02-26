@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>com.informatica.surf</groupId>
-        <artifactId>sources</artifactId>
+        <artifactId>transforms</artifactId>
         <version>1.0</version>
     </parent>
     <groupId>com.informatica.surf</groupId>

@@ -8,7 +8,7 @@
         <version>1.0</version>
     </parent>
   <groupId>com.informatica.messaging.binge.sources</groupId>
-  <artifactId>websocket</artifactId>
+  <artifactId>http</artifactId>
   <name>Surf HTTP Source</name>
   <url>http://www.informatica.com</url>
   <properties>
@@ -23,7 +23,6 @@
     <dependency>
         <groupId>io.netty</groupId>
         <artifactId>netty-all</artifactId>
-        <version>4.0.13.Final</version>
     </dependency>
     <dependency>
         <groupId>org.slf4j</groupId>

@@ -2,7 +2,10 @@
 Surf
 =====
 
-Connecting various data collection technologies (messaging, logging, applications, etc.) to Amazon Kinesis.
+Surf is a project that makes using Amazon Kinesis extremely simple. Surf provides simplified
+mechanisms for putting data into Kinesis, and also to consume data from Kinesis and perform
+meaningful operations on them. The idea is to abstract away the actual Kinesis code, so that
+developers can focus on the parts that matter to them. Feel free to fork the code and play with it.
 
 [What is Surf?](https://github.com/InformaticaCorp/Surf/wiki#wiki-what-is-surf)
 
@@ -11,65 +14,29 @@ Connecting various data collection technologies (messaging, logging, application
 [Wiki?]( https://github.com/InformaticaCorp/Surf/wiki "or click on the github wiki link...")
 
 
-License (See LICENSE file for full license)
--------------------------------------------
-Copyright 2013-2014 Informatica Corporation.
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-
-
-Code Layout
----------------
-
-Main source code
-
-    surf
-    common
-
-VDS API
-
- 	vdsapi
-
-Example configuration file. Feel free to use `surf.properties.example` as your starting point.
-
-```
-# AWS account information
-aws-access-key-id: <your-access-id>
-aws-secret-key: <your-secret-key>
-# Kinesis Stream Name
-aws-kinesis-stream-name: <your-stream-name>
-# DummySource sends one message containing the current timestamp every second
-# You can use any class that implements VDSSource
-vds-source-class: com.informatica.baresurf.DummySource
-# The next line sets the number of threads used by the
-# Kinesis Async API
-kinesis-parallel-requests: 10
-```
 
 Build
 -----
+You'll need the following before you can build Surf:
+* Git to clone this repository
+* A recent version of the Java Development Kit (JDK). Surf has been tested with JDK 1.7.
+* Apache Maven 3
 
-Full clean build of package. Please make sure to set `$JAVA_HOME` to point to JDK 1.7 as it might be required to find JDK 1.7.
+Once you have the prerequisites, you can follow these steps:
 
-    $ mvn package
+```
+git clone https://github.com/InformaticaCorp/Surf.git
+cd Surf
+mvn package
+```
 
-Afterward, a zip for the executable(s), scripts, and libs for easy install and distribution can be found here after building.
+The build results are packaged in this file:
 
-    $ assembly/target/surf-0.1-assembly.zip
+    $ assembly/target/surf-1.0-dist.zip
 
-Alternatively, you can use mvn and install in your own repo.
-
-	$ mvn install
+You can unzip this file in any location of your choice and run Surf from there. For convenience, the contents of this zip file
+are also available here:
+    $ assembly/target/surf-1.0-dist/surf-1.0
 
 Quick Start
 -----------
@@ -95,4 +62,23 @@ $ bin/surf.sh stop-node node1
 NOTES: 
 
 - You will have to have an AWS account and be signed up for Kinesis. For more information, see [this](https://github.com/awslabs/amazon-kinesis-client#getting-started).
+- Amazon Kinesis is a paid service. You will need to pay Amazon according to your usage.
 - Logs for the node can be found in `assembly/target/surf-0.1-assembly/surf-0.1/log/node1-node.log`.
+
+
+License (See LICENSE file for full license)
+-------------------------------------------
+Copyright 2013-2014 Informatica Corporation.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+

@@ -37,7 +37,7 @@ public class PartitionKeyTransform implements VDSTransform{
 
     @Override
     public void open(VDSConfiguration ctx) throws Exception {
-        String regex = ctx.optString("partition-key-regex", ".* \"[A-Z]* ([^\" ]*) .*\".*");
+        String regex = ctx.optString("regex", ".* \"[A-Z]* ([^\" ]*) .*\".*");
         _pattern = Pattern.compile(regex);
         _logger.info("Extracting partition key using the regex: {}", regex);
     }

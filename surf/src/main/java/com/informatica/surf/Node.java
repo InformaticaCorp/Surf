@@ -30,6 +30,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
@@ -41,7 +42,7 @@ public class Node implements Runnable, EventHandler<SurfEvent> {
     
     private final VDSSource _source;
     private final VDSTarget _target;
-    private final VDSConfiguration _context;
+    private final Map<Object, VDSConfiguration> _context;
     private static final Logger _logger = LoggerFactory.getLogger(Node.class);
     private volatile boolean _shutdown = false;
     private final VDSMessageAckSource _acksource;
@@ -49,7 +50,7 @@ public class Node implements Runnable, EventHandler<SurfEvent> {
     private final GenericKeyedObjectPool <Integer, VDSEventListImpl>_eventListPool;
     private final List<VDSTransform> _transforms;
     
-    public Node(VDSSource source, VDSTarget target, List<VDSTransform> transforms, VDSConfiguration ctx){
+    public Node(VDSSource source, VDSTarget target, List<VDSTransform> transforms, Map<Object, VDSConfiguration> ctx){
         _logger.info("Creating node...");
         _source = source;
         _target = target;
@@ -73,10 +74,10 @@ public class Node implements Runnable, EventHandler<SurfEvent> {
     
     public void open() throws Exception{
         _logger.info("Opening source and target connections...");
-        _source.open(_context);
-        _target.open(_context);
+        _source.open(_context.get(_source));
+        _target.open(_context.get(_target));
         for(VDSTransform tx: _transforms){
-            tx.open(_context);
+            tx.open(_context.get(tx));
         }
     }
     

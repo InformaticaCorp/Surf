@@ -1,0 +1,30 @@
+# This section is global configuration
+configuration:
+    aws-access-key-id: foo
+    aws-secret-key: bar
+    aws-kinesis-stream-name: surf-stream
+    kinesis-parallel-requests: 10
+# This section describes the 'ingest' operation
+ingest:
+    # Source-related information
+    source:
+        # Class name of the source class: any class implementing VDSSource
+        class: com.informatica.surf.sources.dummy.DummySource
+        # Configuration specific to the source
+        configuration:
+            directory: /tmp
+            regex: log..*
+    # Transforms, if any
+    transforms:
+          - class: com.informatica.surf.transforms.partitionkey.PartitionKeyTransform
+            configuration:
+              regex: ^(...).*
+#          - class: com.informatica.surf.transforms.AppendHostnameTransform
+#            configuration:
+#              regex: foo
+
+# This section describes the 'process' operation
+process:
+    class: com.informatica.surf.processors.DumpStream
+    configuration:
+        dump-file: /tmp/stream.out

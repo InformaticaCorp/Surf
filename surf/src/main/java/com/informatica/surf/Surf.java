@@ -22,19 +22,24 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Properties;
-import java.util.StringTokenizer;
+import java.util.*;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.yaml.snakeyaml.Yaml;
 
-public class Surf 
+
+public class Surf
 {
     private static final Logger _logger = LoggerFactory.getLogger(Surf.class);
     public static final String VDS_SOURCE_CLASS = "vds-source-class";
     public static final String LOG_TARGET_ONLY="surf-log-target-only";
+    private static Map<String, Object> parseYaml(File file) throws IOException{
+        Yaml yml = new Yaml();
+        FileReader reader = new FileReader(file);
+        Map<String, Object> conf = (Map<String, Object>)yml.load(reader);
+        return conf;
+    }
     public static void main( String[] args ) throws Exception
     {
         _logger.info("Surf node starting...");
@@ -48,43 +53,41 @@ public class Surf
             usage();
             System.exit(1);
         }
-        FileReader reader = new FileReader(file);
-        Properties props = new Properties();
-        props.load(reader);
-        String srcClass = props.getProperty(VDS_SOURCE_CLASS);
-        String str = props.getProperty(LOG_TARGET_ONLY, "false");
-        boolean logOnly = Boolean.parseBoolean(str);
-        
+        Map<Object, VDSConfiguration> contexts = new HashMap<>();
+        Map<String, Object> conf = parseYaml(file);
+        Map<String, Object> globalConfig = (Map<String, Object>)conf.get("configuration");
+        Map<String, Object> ingest = (Map<String, Object>)conf.get("ingest");
+        Map<String, Object> srcMap = (Map<String, Object>)ingest.get("source");
+
+        String srcClass = (String)srcMap.get("class");
         VDSSource src = (VDSSource)Class.forName(srcClass).newInstance();
+        Context srcCtx = new Context();
+        srcCtx.setFromMap(globalConfig);
+        srcCtx.setFromMap((Map<String, Object>) srcMap.get("configuration"));
+        contexts.put(src, srcCtx);
+
         VDSTarget tgt;
-        if(logOnly){
-            tgt = new LogOnlyTarget();
-        }
-        else{
-           tgt = new KinesisTarget();
-        }
-        Context ctx = new Context();
-        ctx.setFromProperties(props);
-        String tx = props.getProperty("surf-transforms");
+        tgt = new KinesisTarget();
+        Context tgtCtx = new Context();
+        tgtCtx.setFromMap(globalConfig);
+        contexts.put(tgt, tgtCtx);
+
         List<VDSTransform> transforms = new ArrayList<>();
-        if(tx != null){
-            StringTokenizer tok = new StringTokenizer(tx, ",");
-            while(tok.hasMoreTokens()){
-                String className = tok.nextToken().trim();
-                try{
-                    Class clazz = Class.forName(className);
-                    Object o = clazz.newInstance();
-                    transforms.add((VDSTransform)o);
-                }
-                catch(ClassNotFoundException ex){
-                    _logger.warn("Could not load transform class: {}", className);
-                }
-                catch(ClassCastException ex){
-                    _logger.warn("Transform class {} does not implement VDSTarget interface", className);
-                }
-            }
+        List <Map>txList = (List<Map>)ingest.get("transforms");
+        for(Map<String, Object> txMap: txList){
+            String className = (String)txMap.get("class");
+            Class clazz = Class.forName(className);
+            Object txObj = clazz.newInstance();
+            Map<String, Object> map = (Map)txMap.get("configuration");
+            Context ctx = new Context();
+            ctx.setFromMap(globalConfig);
+            ctx.setFromMap(map);
+
+            contexts.put(txObj, ctx);
+            transforms.add((VDSTransform)txObj);
         }
-        Node node = new Node(src, tgt, transforms, ctx);
+
+        Node node = new Node(src, tgt, transforms, contexts);
         node.open();
         node.run();
     }

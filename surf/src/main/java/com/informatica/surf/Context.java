@@ -17,6 +17,7 @@ package com.informatica.surf;
 
 import com.informatica.vds.api.VDSConfiguration;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 
 /**
@@ -118,6 +119,12 @@ public class Context implements VDSConfiguration{
     void setFromProperties(Properties props) {
         for(String key: props.stringPropertyNames()){
             _context.put(key, props.getProperty(key));
+        }
+    }
+
+    void setFromMap(Map<String, Object> map){
+        for(String key: map.keySet()){
+            _context.put(key, String.valueOf(map.get(key)));
         }
     }
 }

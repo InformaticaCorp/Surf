@@ -99,7 +99,7 @@ start-node)
 	  echo "Usage $0 start-node <nodename>" >&2
 	  exit
 	fi
-        conf="$BASEDIR/conf/$node.conf"
+        conf="$BASEDIR/conf/$node.yaml"
         if [ ! -r "$conf" ]
         then 
             echo "Config file \"$conf\" for node \"$node\" not found or not readable" >&2
@@ -126,7 +126,7 @@ dump-stream)
 	  echo "Usage: $0 dump-stream nodename" >&2
 	  exit
         fi
-        conf="$BASEDIR/conf/$node.conf"
+        conf="$BASEDIR/conf/$node.yaml"
         if [ ! -r "$conf" ]
         then 
             echo "Config file \"$conf\" for node \"$node\" not found or not readable" >&2
@@ -142,7 +142,7 @@ page-count)
 	  echo "Usage: $0 dump-stream nodename" >&2
 	  exit
         fi
-        conf="$BASEDIR/conf/$node.conf"
+        conf="$BASEDIR/conf/$node.yaml"
         if [ ! -r "$conf" ]
         then 
             echo "Config file \"$conf\" for node \"$node\" not found or not readable" >&2

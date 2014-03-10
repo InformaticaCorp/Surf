@@ -36,6 +36,7 @@ The build results are packaged in this file:
 
 You can unzip this file in any location of your choice and run Surf from there. For convenience, the contents of this zip file
 are also available here:
+
     $ assembly/target/surf-1.0-dist/surf-1.0
 
 Quick Start

@@ -2,7 +2,7 @@
 Surf
 =====
 
-Surf is a project that makes using Amazon Kinesis extremely simple. Surf provides simplified
+Surf is an application that makes using Amazon Kinesis extremely simple. Surf provides simplified
 mechanisms for putting data into Kinesis, and also to consume data from Kinesis and perform
 meaningful operations on them. The idea is to abstract away the actual Kinesis code, so that
 developers can focus on the parts that matter to them. Feel free to fork the code and play with it.

@@ -32,8 +32,6 @@ import org.yaml.snakeyaml.Yaml;
 public class Surf
 {
     private static final Logger _logger = LoggerFactory.getLogger(Surf.class);
-    public static final String VDS_SOURCE_CLASS = "vds-source-class";
-    public static final String LOG_TARGET_ONLY="surf-log-target-only";
     private static Map<String, Object> parseYaml(File file) throws IOException{
         Yaml yml = new Yaml();
         FileReader reader = new FileReader(file);
@@ -93,14 +91,7 @@ public class Surf
     }
     
     private static void usage(){
-        System.err.println("Usage: Surf <config.properties>");
-        System.err.println("config.properties *must* contain at least the following properties:");
-        System.err.printf("%s: the AWS Access Key ID for your Kinesis account\n", KinesisTarget.ACCESS_KEY);
-        System.err.printf("%s: the AWS Secret Key for the above ID\n", KinesisTarget.SECRET_KEY);
-        System.err.printf("%s: the Kinesis stream name where data should be published\n", KinesisTarget.STREAM_NAME);
-        System.err.printf("%s: the fully-qualified classname of the VDS source\n", VDS_SOURCE_CLASS);
-        System.err.println("\n\n");
-        System.err.println("In addition, you must specify any configuration parameters required by the source class");
+        System.err.println("Usage: Surf <config.yaml>");
     }
     
     static class LogOnlyTarget implements VDSTarget{

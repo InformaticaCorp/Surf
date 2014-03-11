@@ -15,5 +15,6 @@
         <module>dummy</module>
         <module>file</module>
         <module>http</module>
+        <module>kinesis</module>
     </modules>
 </project>

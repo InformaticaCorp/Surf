@@ -92,6 +92,10 @@ public class KinesisTarget implements VDSTarget{
                 req.setSequenceNumberForOrdering(headers.get(SEQUENCE_NUMBER));
             }
         }
+        if(_logger.isDebugEnabled()){
+            _logger.debug("Record content: {}", new String(event.getBuffer().array(), 0, event.getBufferLen()));
+            _logger.debug("Record length: {}", event.getBufferLen());
+        }
         _client.putRecordAsync(req, _callback);
     }
 

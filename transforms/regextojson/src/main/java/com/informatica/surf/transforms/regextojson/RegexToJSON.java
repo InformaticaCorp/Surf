@@ -24,10 +24,10 @@ import java.util.regex.Pattern;
  *
  */
 public class RegexToJSON implements VDSTransform {
-    private static final String DEFAULT_REGEX =
-            "(?<host>[^ ]*) (?<time>\\\\[.*\\\\]) \\\\\\\"(?<request>[^ ]*) " +
-            "(?<url>[^ ]*) (?<version>[^ ]*)\\\\\\\" (?<status>[0-9]*) (?<size>[0-9\\\\-]*)";
-    private static final String DEFAULT_GROUPS = "host, time, request, url, version, status, size";
+    public static final String DEFAULT_REGEX =
+            "(?<host>[^ ]*) (?<time>\\[.*\\]) \\\"(?<request>[^ ]*) " +
+            "(?<url>[^ ]*) (?<version>[^ ]*)\\\" (?<status>[0-9]*) (?<size>[0-9\\-]*)";
+    public static final String DEFAULT_GROUPS = "host, time, request, url, version, status, size";
     private Pattern _pattern;
     private String[]_groups;
     private static final Logger _logger = LoggerFactory.getLogger(RegexToJSON.class);
@@ -42,21 +42,31 @@ public class RegexToJSON implements VDSTransform {
         int i=0;
         while(tok.hasMoreTokens()){
             _groups[i] = tok.nextToken().trim();
+            _logger.debug("Adding group {}", _groups[i]);
+            i++;
         }
+        _logger.info("RegexToJSON transform initialized with regex: {}", regex);
     }
 
     @Override
     public void apply(VDSEvent inputEvent, VDSEventList outEvents) throws Exception {
-        String input = new String(inputEvent.getBuffer().array());
+        String input = new String(inputEvent.getBuffer().array(), 0, inputEvent.getBufferLen());
+        _logger.debug("Applying transform to input: {}", input);
         Matcher m = _pattern.matcher(input);
         if(m.matches()){
             JSONObject json = new JSONObject();
             for(String g: _groups){
                 String val = m.group(g);
-                json.put(g, val);
+                if(val == null){
+                    _logger.warn("No value found for group {}", g);
+                }
+                else{
+                    json.put(g, val);
+                }
             }
             String strJSON = json.toJSONString(JSONStyle.LT_COMPRESS);
             byte []buf = strJSON.getBytes();
+            _logger.debug("JSON output: {}", strJSON);
             outEvents.addEvent(buf, buf.length);
         }
         else{

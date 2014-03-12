@@ -44,8 +44,8 @@ Quick Start
 
 - Build
 - Create an [Amazon Kinesis](http://aws.amazon.com/kinesis/) Stream. Instructions can be found [here](http://docs.aws.amazon.com/kinesis/latest/dev/step-one-create-stream.html).
-- Create a configuration file for the node by copying `surf.properties.example` to `assembly/target/surf-0.1-assembly/surf-0.1/conf` and editing
-it to include your AWS account information and Kinesis stream name. Call this file `node1.conf`.
+- Create a configuration file for the node by copying `ingest.yaml` to `assembly/target/surf-0.1-assembly/surf-0.1/conf` and editing
+it to include your AWS account information and Kinesis stream name. Call this file `node1.yaml`.
 - Start the node, called `node1`, by executing the following.
 
 ```

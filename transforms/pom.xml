@@ -13,5 +13,6 @@
     <packaging>pom</packaging>
     <modules>
         <module>partitionkey</module>
+        <module>regextojson</module>
     </modules>
 </project>

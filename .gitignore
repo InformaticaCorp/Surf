@@ -24,3 +24,4 @@ binge.properties
 *.iml
 .idea
 /transforms/partitionkey/target/
+/transforms/regextojson/target/

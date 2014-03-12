@@ -154,6 +154,7 @@ public class BingeRegexFileReader extends VDSMessageAckSource {
         curpos += flen;
         vdsEvent.setDataLen(flen);
         eventsImpl.addEvent(vdsEvent);
+        LOG.debug("current file position: {}", curpos);
         reader.seek(curpos);
     }
 
@@ -203,7 +204,7 @@ public class BingeRegexFileReader extends VDSMessageAckSource {
     public void open(VDSConfiguration ctx) throws Exception {
         // parse all the configuration
         String directory = ctx.getString(SRC_CFG_DIRECTORY);
-        int flightSize = ctx.getInt(SRC_FLIGHT_SIZE);
+        int flightSize = ctx.optInt(SRC_FLIGHT_SIZE, 1000);
         String regex = ctx.getString(SRC_CFG_REGEX_FILENAME);
 
         // initialize

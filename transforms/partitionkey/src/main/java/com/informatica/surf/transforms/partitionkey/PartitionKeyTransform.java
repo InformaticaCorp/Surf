@@ -53,10 +53,12 @@ public class PartitionKeyTransform implements VDSTransform{
     @Override
     public void apply(VDSEvent inputEvent, VDSEventList outEvents) throws Exception {
         ByteBuffer buf = inputEvent.getBuffer();
-        String data = new String(buf.array());
+        String data = new String(buf.array(), 0, inputEvent.getBufferLen());
         StringTokenizer tok = new StringTokenizer(data, "\n");
+        _logger.debug("Event has {} lines", tok.countTokens());
         while(tok.hasMoreTokens()){
             String line = tok.nextToken();
+            _logger.debug("processing input line: {}", line);
             Matcher matcher = _pattern.matcher(line);
             if(matcher.matches()){
                 String key = matcher.group(1);

@@ -66,10 +66,10 @@ public class Node implements Runnable, EventHandler<SurfEvent> {
         }
         GenericKeyedObjectPool<Integer, VDSEventImpl> evtpool = new GenericKeyedObjectPool(new VDSEventPoolFactory());
         evtpool.setMaxActive(-1);
-        evtpool.setMaxTotal(1000);
+        evtpool.setMaxTotal(10000);
         _eventListPool = new GenericKeyedObjectPool<>(new VDSEventListPoolFactory(evtpool));
         _eventListPool.setMaxActive(-1);
-        _eventListPool.setMaxTotal(1000);
+        _eventListPool.setMaxTotal(10000);
     }
     
     public void open() throws Exception{
@@ -95,7 +95,9 @@ public class Node implements Runnable, EventHandler<SurfEvent> {
         while(!_shutdown){
             try{
                 events = _eventListPool.borrowObject(0);
-                _source.read(events);
+                while(events.getEventsList().isEmpty()) {
+                    _source.read(events);
+                }
                 if(_needsAck){
                     Object obj = _acksource.getInputObject();
                     // Hacking this in for now
@@ -121,12 +123,26 @@ public class Node implements Runnable, EventHandler<SurfEvent> {
     @Override
     public void onEvent(SurfEvent surfEvent, long l, boolean b) throws Exception {
         VDSEventListImpl srcEvents = surfEvent.getEventlist();
-        VDSEventListImpl txEvents = applyTransforms(srcEvents, _transforms.iterator());
+        VDSEventListImpl txEvents = null;
+        try{
+                txEvents = applyTransforms(srcEvents, _transforms.iterator());
+        }
+        catch(Exception ex){
+            _logger.warn("Exception while invoking transforms. Skipping event.", ex);
+            return;
+        }
+        try{
         _logger.debug("Sending events to target...");
         for(VDSEventImpl evt: txEvents.getEventsList()){
             _target.write(evt);
         }
-        _eventListPool.returnObject(0, txEvents);
+        }
+        catch(Exception ex){
+            _logger.warn("Exception while handling event", ex);
+        }
+        finally{
+            _eventListPool.returnObject(0, txEvents);
+        }
     }
 
     private VDSEventListImpl applyTransforms(VDSEventListImpl srcEvents, Iterator<VDSTransform> transforms) throws Exception{

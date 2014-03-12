@@ -24,6 +24,7 @@ import com.informatica.vds.api.VDSConfiguration;
 import com.informatica.vds.api.VDSEvent;
 import com.informatica.vds.api.VDSTarget;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -78,7 +79,7 @@ public class KinesisTarget implements VDSTarget{
         Map <String, String> headers = event.getEventInfo();
         PutRecordRequest req = new PutRecordRequest();
         req.setStreamName(_streamName);
-        req.setData(event.getBuffer());
+        req.setData(ByteBuffer.wrap(event.getBuffer().array(), 0, event.getBufferLen()));
         if(headers != null){
             if(headers.containsKey(PARTITION_KEY)){
                 _logger.debug("Using partition key from header");

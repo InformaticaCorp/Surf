@@ -14,5 +14,6 @@
     <modules>
         <module>kinesis</module>
         <module>elasticsearch</module>
+        <module>dump</module>
     </modules>
 </project>

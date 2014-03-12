@@ -16,6 +16,7 @@ binge.properties
 /sources/dummy/target/
 /targets/kinesis/target/
 /targets/elasticsearch/target/
+/targets/dump/target/
 /sources/file/target/
 /sources/http/target/
 /sources/kinesis/target/

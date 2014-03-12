@@ -1,0 +1,29 @@
+# Node type can be "ingest" or "process"
+# Ingest means read data from a source and write it to Kinesis
+# Process means consume data from Kinesis and send it to a target for processing
+node-type: process
+# This section is global configuration
+configuration:
+    aws-access-key-id: foo
+    aws-secret-key: bar
+    aws-kinesis-stream-name: surf-stream
+    kinesis-parallel-requests: 10
+
+    # Target-related information
+target:
+    # Class name of the target class: any class implementing VDSTarget
+    class: com.informatica.surf.target.dump.Dump
+    # class: com.informatica.surf.target.elasticsearch.ElasticSearchTarget
+    # Configuration specific to the target
+#   configuration:
+#       index-name: logs
+#       type-name: http
+#       cluster-name: elasticsearch
+# Transforms, if any
+transforms:
+      - class: com.informatica.surf.transforms.regextojson.RegexToJSON
+#        configuration:
+#          regex: ^(...).*
+#     - class: com.informatica.surf.transforms.AppendHostnameTransform
+#       configuration:
+#         regex: foo

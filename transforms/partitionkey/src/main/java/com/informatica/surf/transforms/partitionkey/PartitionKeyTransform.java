@@ -30,6 +30,14 @@ import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * This class implements a transform that takes in a String and extracts a partition key from it.
+ * Kinesis uses partition keys to ensure that related records end up on the same shard. All records
+ * having the same partition key are guaranteed to appear on the same shard. This transform uses a
+ * customizable regex to extract a partition key from the message text. For each matched string, the
+ * string matched by the first group (ie, between () parenthesis) is used as the partition key. Unmatched
+ * lines are dropped.
+ */
 
 public class PartitionKeyTransform implements VDSTransform{
     private Pattern _pattern;

@@ -66,16 +66,17 @@ public class Node implements Runnable, EventHandler<SurfEvent> {
         }
         GenericKeyedObjectPool<Integer, VDSEventImpl> evtpool = new GenericKeyedObjectPool(new VDSEventPoolFactory());
         evtpool.setMaxActive(-1);
-        evtpool.setMaxTotal(100);
+        evtpool.setMaxTotal(1000);
         _eventListPool = new GenericKeyedObjectPool<>(new VDSEventListPoolFactory(evtpool));
         _eventListPool.setMaxActive(-1);
-        _eventListPool.setMaxTotal(100);
+        _eventListPool.setMaxTotal(1000);
     }
     
     public void open() throws Exception{
         _logger.info("Opening source and target connections...");
         _source.open(_context.get(_source));
         _target.open(_context.get(_target));
+        _logger.info("Initializing transforms");
         for(VDSTransform tx: _transforms){
             tx.open(_context.get(tx));
         }
@@ -121,6 +122,7 @@ public class Node implements Runnable, EventHandler<SurfEvent> {
     public void onEvent(SurfEvent surfEvent, long l, boolean b) throws Exception {
         VDSEventListImpl srcEvents = surfEvent.getEventlist();
         VDSEventListImpl txEvents = applyTransforms(srcEvents, _transforms.iterator());
+        _logger.debug("Sending events to target...");
         for(VDSEventImpl evt: txEvents.getEventsList()){
             _target.write(evt);
         }

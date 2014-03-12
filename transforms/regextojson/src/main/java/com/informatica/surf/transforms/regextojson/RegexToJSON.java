@@ -1,4 +1,4 @@
-package com.informatica.surf.transforms;
+package com.informatica.surf.transforms.regextojson;
 
 import com.informatica.vds.api.VDSConfiguration;
 import com.informatica.vds.api.VDSEvent;

@@ -1,0 +1,31 @@
+# Node type can be "ingest" or "process"
+# Ingest means read data from a source and write it to Kinesis
+# Process means consume data from Kinesis and send it to a target for processing
+node-type: ingest
+# This section is global configuration
+configuration:
+    aws-access-key-id: foo
+    aws-secret-key: bar
+    aws-kinesis-stream-name: surf-stream
+    kinesis-parallel-requests: 10
+    # Source-related information
+source:
+    # Class name of the source class: any class implementing VDSSource
+    # Dummy source just sends a date stamp every second - useful for debugging
+    # class: com.informatica.surf.sources.dummy.DummySource
+    # BingeRegexFileReader source reads log lines from files matching a regex in a given directory
+    class: com.informatica.binge.sources.file.BingeRegexFileReader
+    # Configuration specific to the source
+    configuration:
+        directory: /tmp
+        filename_regex: epa-http.txt
+# Transforms, if any
+transforms:
+    # PartitionKeyTransform creates a Kinesis Partition key from a portion of
+    # the input data marked out by a regex group.
+    - class: com.informatica.surf.transforms.partitionkey.PartitionKeyTransform
+#       configuration:
+#           regex: ^(...).*
+#   - class: com.informatica.surf.transforms.AppendHostnameTransform
+#        configuration:
+#            regex: foo

@@ -15,6 +15,7 @@
  */
 package com.informatica.surf;
 
+import com.informatica.surf.sources.kinesis.KinesisSource;
 import com.informatica.surf.target.kinesis.KinesisTarget;
 import com.informatica.vds.api.*;
 
@@ -51,27 +52,57 @@ public class Surf
             usage();
             System.exit(1);
         }
+        boolean ingestMode = true;
         Map<Object, VDSConfiguration> contexts = new HashMap<>();
         Map<String, Object> conf = parseYaml(file);
-        Map<String, Object> globalConfig = (Map<String, Object>)conf.get("configuration");
-        Map<String, Object> ingest = (Map<String, Object>)conf.get("ingest");
-        Map<String, Object> srcMap = (Map<String, Object>)ingest.get("source");
+        Map<String, Object> globalConfig = (Map)conf.get("configuration");
+        Map<String, Object> srcMap = (Map)conf.get("source");
+        Map<String, Object> tgtMap = (Map)conf.get("target");
 
-        String srcClass = (String)srcMap.get("class");
-        VDSSource src = (VDSSource)Class.forName(srcClass).newInstance();
-        Context srcCtx = new Context();
-        srcCtx.setFromMap(globalConfig);
-        srcCtx.setFromMap((Map<String, Object>) srcMap.get("configuration"));
-        contexts.put(src, srcCtx);
-
+        String nodeType = ((String)conf.get("node-type"));
+        if("ingest".equals(nodeType)){
+            ingestMode = true;
+            _logger.info("Node running in ingest mode");
+        }
+        else if("process".equals(nodeType)){
+            ingestMode = false;
+            _logger.info("Node running in process mode");
+        }
+        else{
+            throw new IllegalArgumentException("node-type must be 'process' or 'ingest'");
+        }
+        VDSSource src;
         VDSTarget tgt;
-        tgt = new KinesisTarget();
-        Context tgtCtx = new Context();
-        tgtCtx.setFromMap(globalConfig);
-        contexts.put(tgt, tgtCtx);
+        if(ingestMode){
+            // Ingest mode: the source is determined from configuration
+            String srcClass = (String)srcMap.get("class");
+            src = (VDSSource)Class.forName(srcClass).newInstance();
+            Context srcCtx = new Context();
+            srcCtx.setFromMap(globalConfig);
+            srcCtx.setFromMap((Map<String, Object>) srcMap.get("configuration"));
+            contexts.put(src, srcCtx);
+            // The target is always Kinesis
+            tgt = new KinesisTarget();
+            Context tgtCtx = new Context();
+            tgtCtx.setFromMap(globalConfig);
+            contexts.put(tgt, tgtCtx);
+        }
+        else{
+            // Process mode: the source is always Kinesis
+            src = new KinesisSource();
+            Context srcCtx = new Context();
+            srcCtx.setFromMap(globalConfig);
+            contexts.put(src, srcCtx);
+            // The target is determined from configuration
+            String tgtClass = (String)tgtMap.get("class");
+            tgt = (VDSTarget)Class.forName(tgtClass).newInstance();
+            Context tgtCtx = new Context();
+            tgtCtx.setFromMap(globalConfig);
+            tgtCtx.setFromMap((Map)tgtMap.get("configuration"));
+        }
 
         List<VDSTransform> transforms = new ArrayList<>();
-        List <Map>txList = (List<Map>)ingest.get("transforms");
+        List <Map>txList = (List<Map>)conf.get("transforms");
         for(Map<String, Object> txMap: txList){
             String className = (String)txMap.get("class");
             Class clazz = Class.forName(className);

@@ -23,6 +23,11 @@
         <artifactId>kinesis-target</artifactId>
         <version>${project.version}</version>
     </dependency>
+      <dependency>
+          <groupId>com.informatica.surf</groupId>
+          <artifactId>kinesis-source</artifactId>
+          <version>${project.version}</version>
+      </dependency>
     <dependency>
         <groupId>com.informatica.messaging.binge</groupId>
         <artifactId>vdsapi</artifactId>

@@ -123,6 +123,9 @@ public class Context implements VDSConfiguration{
     }
 
     void setFromMap(Map<String, Object> map){
+        if(map == null || map.isEmpty()){
+            return;
+        }
         for(String key: map.keySet()){
             _context.put(key, String.valueOf(map.get(key)));
         }

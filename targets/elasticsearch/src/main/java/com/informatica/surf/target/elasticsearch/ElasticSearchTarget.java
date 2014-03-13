@@ -37,7 +37,10 @@ public class ElasticSearchTarget implements VDSTarget {
 
     @Override
     public void write(VDSEvent strm) throws Exception {
-        _client.prepareIndex(_indexName, _typeName).setSource(strm.getBuffer().array());
+
+        _client.prepareIndex(_indexName, _typeName)
+                .setSource(strm.getBuffer().array(), 0, strm.getBufferLen())
+                .execute();
         _logger.debug("Wrote data to ElasticSearch index");
     }
 

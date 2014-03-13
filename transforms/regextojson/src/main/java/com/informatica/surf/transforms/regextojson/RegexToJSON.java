@@ -21,13 +21,13 @@ import java.util.regex.Pattern;
  * It needs two settings from configuration:
  * regex: this is the regular expression with named groups
  * groups: this a comma-separated list of group names. Java does not currently have a way to programatically determine this
- *
+ * The default regex matches the common Apache log format http://en.wikipedia.org/wiki/Common_Log_Format
  */
 public class RegexToJSON implements VDSTransform {
     public static final String DEFAULT_REGEX =
-            "(?<host>[^ ]*) (?<time>\\[.*\\]) \\\"(?<request>[^ ]*) " +
+            "(?<host>[^ ]*) (?<clientid>[^ ]*) (?<userid>[^ ]*) (?<time>\\[.*\\]) \\\"(?<request>[^ ]*) " +
             "(?<url>[^ ]*) (?<version>[^ ]*)\\\" (?<status>[0-9]*) (?<size>[0-9\\-]*)";
-    public static final String DEFAULT_GROUPS = "host, time, request, url, version, status, size";
+    public static final String DEFAULT_GROUPS = "host, clientid, userid, time, request, url, version, status, size";
     private Pattern _pattern;
     private String[]_groups;
     private static final Logger _logger = LoggerFactory.getLogger(RegexToJSON.class);

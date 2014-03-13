@@ -99,6 +99,7 @@ public class Surf
             Context tgtCtx = new Context();
             tgtCtx.setFromMap(globalConfig);
             tgtCtx.setFromMap((Map)tgtMap.get("configuration"));
+            contexts.put(tgt, tgtCtx);
         }
 
         List<VDSTransform> transforms = new ArrayList<>();
@@ -115,10 +116,19 @@ public class Surf
             contexts.put(txObj, ctx);
             transforms.add((VDSTransform)txObj);
         }
-
-        Node node = new Node(src, tgt, transforms, contexts);
-        node.open();
-        node.run();
+        Node node = null;
+        try{
+            node = new Node(src, tgt, transforms, contexts);
+            node.open();
+            _logger.info("Surf Node opened");
+            node.run();
+        }
+        catch(Exception ex){
+            _logger.error("An exception occurred: ", ex);
+            _logger.error("Shutting down node");
+            node.shutdown();
+            System.exit(-1);
+        }
     }
     
     private static void usage(){

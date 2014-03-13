@@ -67,7 +67,6 @@ public class KinesisSource implements VDSSource {
         while(i < MAX_EVENTS){
             KinesisEvent evt = _eventList.poll(300, TimeUnit.MILLISECONDS);
             if(evt == null){
-                _logger.warn("Got a null event");
                 break;
             }
             byte buf[] = evt.getData().getBytes();

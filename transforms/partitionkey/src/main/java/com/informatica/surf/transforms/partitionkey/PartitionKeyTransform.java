@@ -37,6 +37,7 @@ import org.slf4j.LoggerFactory;
  * customizable regex to extract a partition key from the message text. For each matched string, the
  * string matched by the first group (ie, between () parenthesis) is used as the partition key. Unmatched
  * lines are dropped.
+ * The default regex matches the common Apache log format http://en.wikipedia.org/wiki/Common_Log_Format
  */
 
 public class PartitionKeyTransform implements VDSTransform{
@@ -62,6 +63,9 @@ public class PartitionKeyTransform implements VDSTransform{
             Matcher matcher = _pattern.matcher(line);
             if(matcher.matches()){
                 String key = matcher.group(1);
+                if(key.length() >  256){
+                    key = key.substring(0, 255);
+                }
                 HashMap<String, String> map = new HashMap<>();
                 map.put("kinesis-partition-key", key);
                 byte []b = line.getBytes();

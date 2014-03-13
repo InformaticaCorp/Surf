@@ -10,6 +10,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -25,13 +27,15 @@ import java.util.regex.Pattern;
  */
 public class RegexToJSON implements VDSTransform {
     public static final String DEFAULT_REGEX =
-            "(?<host>[^ ]*) (?<clientid>[^ ]*) (?<userid>[^ ]*) (?<time>\\[.*\\]) \\\"(?<request>[^ ]*) " +
+            "(?<host>[^ ]*) (?<clientid>[^ ]*) (?<userid>[^ ]*) \\[(?<timestamp>.*)\\] \\\"(?<request>[^ ]*) " +
             "(?<url>[^ ]*) (?<version>[^ ]*)\\\" (?<status>[0-9]*) (?<size>[0-9\\-]*)";
-    public static final String DEFAULT_GROUPS = "host, clientid, userid, time, request, url, version, status, size";
+    public static final String DEFAULT_GROUPS = "host, clientid, userid, timestamp, request, url, version, status, size";
     private Pattern _pattern;
     private String[]_groups;
     private static final Logger _logger = LoggerFactory.getLogger(RegexToJSON.class);
+    private final SimpleDateFormat _sdf = new SimpleDateFormat("dd/MMM/YYYY:HH:mm:ss Z");
 
+    //String d  = "13/Mar/2014:03:10:51 -0700"
     @Override
     public void open(VDSConfiguration ctx) throws Exception {
         String regex = ctx.optString("regex", DEFAULT_REGEX);
@@ -57,8 +61,13 @@ public class RegexToJSON implements VDSTransform {
             JSONObject json = new JSONObject();
             for(String g: _groups){
                 String val = m.group(g);
-                if(val == null){
-                    _logger.warn("No value found for group {}", g);
+                if(val == null) {
+                    continue;
+                }
+                if(g.equals("timestamp")){
+                    g = "@timestamp";
+                    Date v = _sdf.parse(val);
+                    json.put(g, v.getTime());
                 }
                 else{
                     json.put(g, val);

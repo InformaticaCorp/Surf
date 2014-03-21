@@ -7,6 +7,8 @@ mechanisms for putting data into Kinesis, and also to consume data from Kinesis 
 meaningful operations on them. The idea is to abstract away the actual Kinesis code, so that
 developers can focus on the parts that matter to them. Feel free to fork the code and play with it.
 
+[Surf Web Page?](http://www.projectsurf.net)
+
 [What is Surf?](https://github.com/InformaticaCorp/Surf/wiki#wiki-what-is-surf)
 
 [Amazon Kinesis?](https://github.com/InformaticaCorp/Surf/wiki#wiki-amazon-kinesis)

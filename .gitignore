@@ -26,3 +26,4 @@ binge.properties
 .idea
 /transforms/partitionkey/target/
 /transforms/regextojson/target/
+/transforms/grok/target/

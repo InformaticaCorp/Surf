@@ -21,7 +21,8 @@ target:
 #       cluster-name: elasticsearch
 # Transforms, if any
 transforms:
-      - class: com.informatica.surf.transforms.regextojson.RegexToJSON
+       - class: com.informatica.surf.transforms.grok.GrokTransform
+#      - class: com.informatica.surf.transforms.regextojson.RegexToJSON
 #        configuration:
 #          regex: ^(...).*
 #     - class: com.informatica.surf.transforms.AppendHostnameTransform

@@ -6,7 +6,7 @@ node-type: ingest
 configuration:
     aws-access-key-id: foo
     aws-secret-key: bar
-    aws-kinesis-stream-name: surf-stream
+    aws-kinesis-stream-name: surf
     kinesis-parallel-requests: 10
     # Source-related information
 source:
@@ -18,7 +18,7 @@ source:
     # Configuration specific to the source
     configuration:
         directory: /tmp
-        filename_regex: epa-http.txt
+        filename_regex: epa-http.log
 # Transforms, if any
 transforms:
     # PartitionKeyTransform creates a Kinesis Partition key from a portion of

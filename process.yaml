@@ -6,7 +6,7 @@ node-type: process
 configuration:
     aws-access-key-id: foo
     aws-secret-key: bar
-    aws-kinesis-stream-name: surf-stream
+    aws-kinesis-stream-name: surf
     kinesis-parallel-requests: 10
 
     # Target-related information

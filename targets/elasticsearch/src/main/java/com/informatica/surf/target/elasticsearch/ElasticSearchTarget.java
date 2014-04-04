@@ -18,12 +18,16 @@ package com.informatica.surf.target.elasticsearch;
 import com.informatica.vds.api.VDSConfiguration;
 import com.informatica.vds.api.VDSEvent;
 import com.informatica.vds.api.VDSTarget;
+import org.elasticsearch.action.admin.indices.template.put.PutIndexTemplateRequestBuilder;
+import org.elasticsearch.action.admin.indices.template.put.PutIndexTemplateResponse;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.node.Node;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 
 import static org.elasticsearch.node.NodeBuilder.nodeBuilder;
 
@@ -39,8 +43,14 @@ public class ElasticSearchTarget implements VDSTarget {
     @Override
     public void open(VDSConfiguration ctx) throws Exception {
         _logger.info("Initializing ElasticSearch target");
-        _indexName = ctx.getString("index-name");
-        _typeName = ctx.getString("type-name");
+        _indexName = ctx.optString("index-name", "surf");
+        _typeName = ctx.optString("type-name", "http");
+        boolean useTemplate = ctx.optBoolean("use-template", true);
+        if(!_indexName.startsWith("surf") && useTemplate){
+            _logger.error("The index name *must* start with 'surf' if the default Surf template is used");
+            _logger.error("Either use an index-name starting with 'surf' or set use-template to false and provide your own template");
+            throw new IllegalArgumentException("Invalid index name for default template");
+        }
         String cluster = ctx.optString("cluster-name", "elasticsearch");
         _node = nodeBuilder()
                   .client(true)
@@ -48,6 +58,26 @@ public class ElasticSearchTarget implements VDSTarget {
                   .node();
         _client = _node.client();
         _logger.info("ElasticSearch target initialized");
+        if(useTemplate){
+            InputStream stream = getClass().getResourceAsStream("/surf-template.json");
+            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+            byte buf[] = new byte[1024];
+            while(stream.read(buf) > 0){
+                bos.write(buf);
+            }
+            stream.close();
+            bos.close();
+            byte [] template = bos.toByteArray();
+            PutIndexTemplateRequestBuilder req = _client.admin().indices().preparePutTemplate("surf-template")
+                    .setSource(template);
+            PutIndexTemplateResponse resp = req.execute().actionGet();
+            if(resp.isAcknowledged()){
+                _logger.info("Template loaded");
+            }
+        }
+        else{
+            _logger.info("Default Surf template not loaded - make sure you have configured ElasticSearch correctly");
+        }
     }
 
     @Override

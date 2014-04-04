@@ -1,0 +1,15 @@
+{
+  "template" : "surf*",
+  "settings" : {
+    "index.refresh_interval" : "5s"
+  },
+  "mappings" : {
+    "_default_" : {
+       "_all" : {"enabled" : true},
+       "properties" : {
+         "timestamp" : { "type": "date", "index" : "analyzed", "format": "dd/MMM/yyyy:HH:mm:ss Z" },
+         "bytes" : { "type": "float", "index": "analyzed" }
+       }
+    }
+  }
+}

@@ -65,7 +65,12 @@ public class Context implements VDSConfiguration{
     @Override
     public boolean optBoolean(String key, boolean defaultValue) {
         try{
-            return Boolean.parseBoolean(_context.get(key));
+	    if(_context.containsKey(key)){
+            	return Boolean.parseBoolean(_context.get(key));
+	    }
+	    else{
+	        return defaultValue;
+	    }
         }
         catch(Exception ex){
             return defaultValue;

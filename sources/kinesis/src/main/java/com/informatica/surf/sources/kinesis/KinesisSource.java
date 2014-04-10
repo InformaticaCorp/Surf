@@ -66,7 +66,7 @@ public class KinesisSource implements VDSSource {
         String accessid = ctx.getString("aws-access-key-id");
         String secretkey = ctx.getString("aws-secret-key");
         String streamname = ctx.getString("aws-kinesis-stream-name");
-        String appName = ctx.getString("application-name");
+        String appName = ctx.optString("application-name", System.getProperty("nodename"));
         BasicAWSCredentials creds = new BasicAWSCredentials(accessid, secretkey);
         CredProvider credprovider = new CredProvider(creds);
         KinesisClientLibConfiguration config = new KinesisClientLibConfiguration(appName, streamname,  credprovider, workerId)
